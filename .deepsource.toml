@@ -1,0 +1,14 @@
+version = 1
+
+skip_dirs = ["target", ".idea", ".vscode", ".git"]
+
+[[analyzers]]
+name = "java"
+enabled = true
+run_tests = true
+coverage_tool = "jacoco"
+coverage_paths = ["target/jacoco.exec"]
+
+[[analyzers]]
+name = "security"
+enabled = true

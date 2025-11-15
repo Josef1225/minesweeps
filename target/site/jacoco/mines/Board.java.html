@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Board.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">minesweeper</a> &gt; <a href="index.source.html" class="el_package">mines</a> &gt; <span class="el_source">Board.java</span></div><h1>Board.java</h1><pre class="source lang-java linenums">package mines;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.security.SecureRandom;
+
+public class Board extends JPanel {
+    private static final long serialVersionUID = 6195235521361212179L;
+
+    // Constants
+    public static final int NUM_IMAGES = 13;
+    public static final int CELL_SIZE = 15;
+    public static final int COVER_FOR_CELL = 10;
+    public static final int MARK_FOR_CELL = 10;
+    public static final int EMPTY_CELL = 0;
+    public static final int MINE_CELL = 9;
+    public static final int COVERED_MINE_CELL = MINE_CELL + COVER_FOR_CELL;
+    public static final int MARKED_MINE_CELL = COVERED_MINE_CELL + MARK_FOR_CELL;
+
+    public static final int DRAW_MINE = 9;
+    public static final int DRAW_COVER = 10;
+    public static final int DRAW_MARK = 11;
+    public static final int DRAW_WRONG_MARK = 12;
+
+    // Public attributes for JUnit testing
+    public int[] field;
+    public boolean inGame;
+    public int minesLeft;
+    public Image[] img;
+<span class="fc" id="L32">    public int mines = 40;</span>
+<span class="fc" id="L33">    public int rows = 16;</span>
+<span class="fc" id="L34">    public int cols = 16;</span>
+    public int allCells;
+    public JLabel statusbar;
+
+<span class="fc" id="L38">    public Board(JLabel statusbar) {</span>
+<span class="fc" id="L39">        this.statusbar = statusbar;</span>
+
+<span class="fc" id="L41">        img = new Image[NUM_IMAGES];</span>
+<span class="fc bfc" id="L42" title="All 2 branches covered.">        for (int i = 0; i &lt; NUM_IMAGES; i++) {</span>
+<span class="fc" id="L43">            String path = &quot;/images/&quot; + i + &quot;.png&quot;; // correct classpath</span>
+<span class="fc" id="L44">            img[i] = new ImageIcon(getClass().getResource(path)).getImage();</span>
+        }
+
+<span class="fc" id="L47">        setDoubleBuffered(true);</span>
+<span class="fc" id="L48">        addMouseListener(new MinesAdapter());</span>
+<span class="fc" id="L49">        newGame();</span>
+<span class="fc" id="L50">    }</span>
+
+    public void newGame() {
+<span class="fc" id="L53">        SecureRandom random = new SecureRandom();</span>
+<span class="fc" id="L54">        inGame = true;</span>
+<span class="fc" id="L55">        minesLeft = mines;</span>
+<span class="fc" id="L56">        allCells = rows * cols;</span>
+<span class="fc" id="L57">        field = new int[allCells];</span>
+
+<span class="fc bfc" id="L59" title="All 2 branches covered.">        for (int i = 0; i &lt; allCells; i++) field[i] = COVER_FOR_CELL;</span>
+
+<span class="fc" id="L61">        statusbar.setText(Integer.toString(minesLeft));</span>
+
+<span class="fc" id="L63">        int i = 0;</span>
+<span class="fc bfc" id="L64" title="All 2 branches covered.">        while (i &lt; mines) {</span>
+<span class="fc" id="L65">            int pos = (int)(allCells * random.nextDouble());</span>
+<span class="fc bfc" id="L66" title="All 2 branches covered.">            if (placeMineAt(pos)) i++;</span>
+<span class="fc" id="L67">        }</span>
+<span class="fc" id="L68">    }</span>
+
+    public boolean placeMineAt(int position) {
+<span class="pc bpc" id="L71" title="1 of 4 branches missed.">        if (position &gt;= allCells || field[position] == COVERED_MINE_CELL) return false;</span>
+
+<span class="fc" id="L73">        field[position] = COVERED_MINE_CELL;</span>
+<span class="fc" id="L74">        incrementNeighbors(position);</span>
+<span class="fc" id="L75">        return true;</span>
+    }
+
+    public void incrementNeighbors(int position) {
+<span class="fc bfc" id="L79" title="All 2 branches covered.">        for (int r=-1; r&lt;=1; r++) {</span>
+<span class="fc bfc" id="L80" title="All 2 branches covered.">            for (int c=-1; c&lt;=1; c++) {</span>
+<span class="fc bfc" id="L81" title="All 4 branches covered.">                if (r==0 &amp;&amp; c==0) continue;</span>
+<span class="fc" id="L82">                int cell = position + r * cols + c;</span>
+<span class="fc" id="L83">                int cellCol = cell % cols;</span>
+<span class="pc bpc" id="L84" title="2 of 10 branches missed.">                if (cell &gt;=0 &amp;&amp; cell &lt; allCells &amp;&amp; cellCol&gt;=0 &amp;&amp; cellCol&lt;cols &amp;&amp;</span>
+                        field[cell] != COVERED_MINE_CELL) {
+<span class="fc" id="L86">                    field[cell] += 1;</span>
+                }
+            }
+        }
+<span class="fc" id="L90">    }</span>
+
+    public void findEmptyCells(int j) {
+<span class="nc bnc" id="L93" title="All 2 branches missed.">        for (int r = -1; r &lt;= 1; r++) {</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">            for (int c = -1; c &lt;= 1; c++) {</span>
+<span class="nc bnc" id="L95" title="All 4 branches missed.">                if (r == 0 &amp;&amp; c == 0) continue;</span>
+<span class="nc" id="L96">                int cell = j + r * cols + c;</span>
+<span class="nc" id="L97">                int cellCol = cell % cols;</span>
+
+<span class="nc bnc" id="L99" title="All 10 branches missed.">                if (cell &gt;= 0 &amp;&amp; cell &lt; allCells &amp;&amp;</span>
+                        cellCol &gt;= 0 &amp;&amp; cellCol &lt; cols &amp;&amp;
+                        field[cell] &gt; MINE_CELL) {
+<span class="nc" id="L102">                    field[cell] -= COVER_FOR_CELL;</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">                    if (field[cell] == EMPTY_CELL) {</span>
+<span class="nc" id="L104">                        findEmptyCells(cell);</span>
+                    }
+                }
+            }
+        }
+<span class="nc" id="L109">    }</span>
+
+    @Override
+    public void paint(Graphics g) {
+<span class="fc" id="L113">        int uncover = 0;</span>
+
+<span class="pc bpc" id="L115" title="1 of 2 branches missed.">        for (int i=0; i&lt;rows; i++) {</span>
+<span class="fc bfc" id="L116" title="All 2 branches covered.">            for (int j=0; j&lt;cols; j++) {</span>
+<span class="fc" id="L117">                int idx = i*cols+j;</span>
+<span class="fc" id="L118">                int cell = field[idx];</span>
+<span class="fc" id="L119">                cell = getCellImageIndex(cell);</span>
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">                if (cell == DRAW_COVER) uncover++;</span>
+<span class="fc" id="L121">                g.drawImage(img[cell], j*CELL_SIZE, i*CELL_SIZE, this);</span>
+            }
+        }
+
+<span class="nc bnc" id="L125" title="All 4 branches missed.">        if (uncover == 0 &amp;&amp; inGame) {</span>
+<span class="nc" id="L126">            inGame = false;</span>
+<span class="nc" id="L127">            statusbar.setText(&quot;Game won&quot;);</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">        } else if (!inGame) {</span>
+<span class="nc" id="L129">            statusbar.setText(&quot;Game lost&quot;);</span>
+        }
+<span class="nc" id="L131">    }</span>
+
+    public int getCellImageIndex(int cell) {
+<span class="pc bpc" id="L134" title="1 of 2 branches missed.">        if (!inGame) {</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">            if (cell == COVERED_MINE_CELL) return DRAW_MINE;</span>
+<span class="nc bnc" id="L136" title="All 2 branches missed.">            if (cell == MARKED_MINE_CELL) return DRAW_MARK;</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">            if (cell &gt; COVERED_MINE_CELL) return DRAW_WRONG_MARK;</span>
+<span class="nc bnc" id="L138" title="All 2 branches missed.">            if (cell &gt; MINE_CELL) return DRAW_COVER;</span>
+        } else {
+<span class="pc bpc" id="L140" title="1 of 2 branches missed.">            if (cell &gt; COVERED_MINE_CELL) return DRAW_MARK;</span>
+<span class="pc bpc" id="L141" title="1 of 2 branches missed.">            if (cell &gt; MINE_CELL) return DRAW_COVER;</span>
+        }
+<span class="nc" id="L143">        return cell;</span>
+    }
+
+<span class="fc" id="L146">    class MinesAdapter extends MouseAdapter {</span>
+        @Override
+        public void mousePressed(MouseEvent e) {
+<span class="nc" id="L149">            int x = e.getX();</span>
+<span class="nc" id="L150">            int y = e.getY();</span>
+<span class="nc" id="L151">            int cCol = x / CELL_SIZE;</span>
+<span class="nc" id="L152">            int cRow = y / CELL_SIZE;</span>
+<span class="nc" id="L153">            boolean repaintNeeded = false;</span>
+
+<span class="nc bnc" id="L155" title="All 2 branches missed.">            if (!inGame) {</span>
+<span class="nc" id="L156">                newGame();</span>
+<span class="nc" id="L157">                repaint();</span>
+            }
+
+<span class="nc bnc" id="L160" title="All 4 branches missed.">            if (x &lt; cols * CELL_SIZE &amp;&amp; y &lt; rows * CELL_SIZE) {</span>
+<span class="nc" id="L161">                int cellIndex = cRow * cols + cCol;</span>
+
+<span class="nc bnc" id="L163" title="All 2 branches missed.">                if (e.getButton() == MouseEvent.BUTTON3) {</span>
+<span class="nc bnc" id="L164" title="All 2 branches missed.">                    if (field[cellIndex] &gt; MINE_CELL) {</span>
+<span class="nc" id="L165">                        repaintNeeded = true;</span>
+
+<span class="nc bnc" id="L167" title="All 2 branches missed.">                        if (field[cellIndex] &lt;= COVERED_MINE_CELL) {</span>
+<span class="nc bnc" id="L168" title="All 2 branches missed.">                            if (minesLeft &gt; 0) {</span>
+<span class="nc" id="L169">                                field[cellIndex] += MARK_FOR_CELL;</span>
+<span class="nc" id="L170">                                minesLeft--;</span>
+<span class="nc" id="L171">                                statusbar.setText(Integer.toString(minesLeft));</span>
+                            } else {
+<span class="nc" id="L173">                                statusbar.setText(&quot;No marks left&quot;);</span>
+                            }
+                        } else {
+<span class="nc" id="L176">                            field[cellIndex] -= MARK_FOR_CELL;</span>
+<span class="nc" id="L177">                            minesLeft++;</span>
+<span class="nc" id="L178">                            statusbar.setText(Integer.toString(minesLeft));</span>
+                        }
+                    }
+                } else {
+<span class="nc bnc" id="L182" title="All 2 branches missed.">                    if (field[cellIndex] &gt; COVERED_MINE_CELL) return;</span>
+
+<span class="nc bnc" id="L184" title="All 4 branches missed.">                    if (field[cellIndex] &gt; MINE_CELL &amp;&amp; field[cellIndex] &lt; MARKED_MINE_CELL) {</span>
+<span class="nc" id="L185">                        field[cellIndex] -= COVER_FOR_CELL;</span>
+<span class="nc" id="L186">                        repaintNeeded = true;</span>
+
+<span class="nc bnc" id="L188" title="All 2 branches missed.">                        if (field[cellIndex] == MINE_CELL) inGame = false;</span>
+<span class="nc bnc" id="L189" title="All 2 branches missed.">                        if (field[cellIndex] == EMPTY_CELL) findEmptyCells(cellIndex);</span>
+                    }
+                }
+
+<span class="nc bnc" id="L193" title="All 2 branches missed.">                if (repaintNeeded) repaint();</span>
+            }
+<span class="nc" id="L195">        }</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>
