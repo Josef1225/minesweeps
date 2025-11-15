@@ -4,10 +4,10 @@ import org.junit.jupiter.api.Test;
 import javax.swing.JLabel;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class BoardTest {
+class BoardTest {
 
     @Test
-    public void testBoardInitialization() {
+    void testBoardInitialization() {
         JLabel status = new JLabel();
         Board board = new Board(status);
 
@@ -18,7 +18,7 @@ public class BoardTest {
     }
 
     @Test
-    public void testImagesLoaded() {
+    void testImagesLoaded() {
         JLabel status = new JLabel();
         Board board = new Board(status);
 
@@ -28,7 +28,7 @@ public class BoardTest {
     }
 
     @Test
-    public void testNewGameResets() {
+    void testNewGameResets() {
         JLabel status = new JLabel();
         Board board = new Board(status);
 
