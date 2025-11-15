@@ -3,10 +3,10 @@ package mines;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class MinesTest {
+class MinesTest {
 
     @Test
-    public void testMinesConstructor() {
+    void testMinesConstructor() {
         Mines mines = new Mines();
         assertNotNull(mines.statusbar, "Status bar should be initialized");
     }
